@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fox Media - Check Activation Status</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Google Fonts: Outfit (Headings) & Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .status-container {
+            flex-grow: 1;
+            margin-top: 60px; /* Offset for fixed nav */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .status-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            z-index: 10;
+        }
+        .status-support-box {
+            margin: 0 auto 60px;
+            max-width: 800px;
+            background: var(--glass-bg);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+            backdrop-filter: blur(16px);
+            z-index: 10;
+        }
+        .status-support-title {
+            color: var(--color-text);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+        .status-support-title span {
+            color: #FF5A79;
+            font-weight: 700;
+        }
+        .status-support-desc {
+            color: var(--color-text-light);
+            margin-bottom: 24px;
+        }
+        .support-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .btn-call {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-call:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .pulse-btn {
+            animation: pulse-shadow 2s infinite;
+        }
+        @keyframes pulse-shadow {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        @media (max-width: 768px) {
+            .status-header h1 {
+                font-size: 2.2rem !important;
+            }
+            .status-support-box {
+                padding: 20px;
+                margin: 0 20px 40px;
+            }
+            .status-support-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Ambient Glows */
+        .ambient-glow {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.15;
+            z-index: 1;
+            pointer-events: none;
+            animation: floatGlow 14s ease-in-out infinite alternate;
+        }
+        .glow-1 {
+            background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+            top: 15%;
+            left: 10%;
+        }
+        .glow-2 {
+            background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%);
+            bottom: 25%;
+            right: 10%;
+            animation-delay: -7s;
+        }
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 40px) scale(1.15); }
+        }
+
+        /* Native Status Checker Styles */
+        .status-checker-card {
+            width: 90%;
+            max-width: 650px;
+            margin: 0 auto 50px;
+            padding: 35px;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45), var(--shadow-glow);
+            backdrop-filter: blur(32px) saturate(140%);
+            -webkit-backdrop-filter: blur(32px) saturate(140%);
+            z-index: 10;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-checker-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        
+        .status-checker-card:hover {
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 50px rgba(249, 115, 22, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border-color: rgba(249, 115, 22, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-primary-light);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            color: var(--color-primary-light);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 18px 20px 18px 52px;
+            font-size: 1rem;
+            background: rgba(3, 3, 5, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            color: var(--color-text);
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: 'Inter', sans-serif;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-input:focus {
+            border-color: var(--color-primary-light);
+            background: rgba(3, 3, 5, 0.8);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .check-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, var(--color-secondary) 100%);
+            background-size: 200% auto;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);
+        }
+        
+        .check-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-position: right center;
+            box-shadow: 0 12px 30px rgba(249, 115, 22, 0.45), 0 0 30px rgba(255, 90, 121, 0.2);
+        }
+        
+        .check-btn:disabled {
+            background: #27272a;
+            color: #71717a;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+        
+        /* Consolidated Org Card styling */
+        .org-status-card {
+            background: rgba(11, 11, 19, 0.45);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 26px;
+            margin-bottom: 24px;
+            text-align: left;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .org-card-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+
+        .org-icon-container {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 25px;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .org-text-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .org-label {
+            font-size: 0.75rem;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .org-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .org-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--color-text);
+            margin: 0;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-expired {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .team-changed-text {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .org-status-desc {
+            color: var(--color-text-light);
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Inline Switch Button Section */
+        .inline-switch {
+            margin: 16px 0 16px 0;
+            padding: 18px;
+            background: rgba(249, 115, 22, 0.04);
+            border: 1px solid rgba(249, 115, 22, 0.12);
+            border-radius: 14px;
+            text-align: left;
+        }
+
+        .switch-notice-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 4px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .switch-notice-desc {
+            font-size: 0.82rem;
+            color: var(--color-text-light);
+            margin-bottom: 14px;
+        }
+
+        .switch-btn-blue {
+            width: 100%;
+            padding: 15px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+        }
+
+        .switch-btn-blue:hover:not(:disabled) {
+            background: #1d4ed8;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .switch-btn-blue:disabled {
+            background: #1e293b;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .pulse-blue {
+            animation: pulseBlue 2s infinite;
+        }
+
+        @keyframes pulseBlue {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            }
+        }
+
+        .switch-message {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .switch-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .switch-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Active Plan Product card block */
+        .product-item-card {
+            background: rgba(11, 11, 19, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--color-text);
+            font-family: 'Outfit', sans-serif;
+            text-align: left;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+        }
+        
+        .product-item-card:hover {
+            background: rgba(11, 11, 19, 0.65);
+            border-color: rgba(249, 115, 22, 0.25);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+            transform: translateY(-1px);
+        }
+        
+        /* Error Box */
+        .check-error-container {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #EF4444;
+            border-radius: var(--radius-sm);
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            animation: slide-down 0.4s ease;
+        }
+        
+        .error-icon {
+            color: #EF4444;
+            font-size: 1.4rem;
+            margin-top: 2px;
+        }
+        
+        .error-text-wrapper h3 {
+            font-size: 1.05rem;
+            color: var(--color-text);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .error-text-wrapper p {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            margin: 0;
+        }
+        
+        /* Notice Section */
+        .notice-section {
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-left: 4px solid #F59E0B;
+            border-radius: var(--radius-sm);
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .notice-icon {
+            color: #F59E0B;
+            font-size: 1.1rem;
+            margin-top: 3px;
+        }
+        
+        .notice-text {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        /* Transfer Box */
+        .transfer-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--glass-border);
+            border-radius: var(--radius-sm);
+            text-align: left;
+        }
+        
+        .transfer-title {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .transfer-path {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .transfer-old {
+            color: var(--color-text-light);
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        
+        .transfer-arrow {
+            color: var(--color-primary-light);
+            font-size: 0.8rem;
+        }
+        
+        .transfer-new {
+            color: var(--color-text);
+            font-weight: 600;
+        }
+        
+        .transfer-date {
+            font-size: 0.75rem;
+            color: var(--color-text-light);
+        }
+        
+        /* Switch Card */
+        .switch-section {
+            margin-bottom: 24px;
+        }
+        
+        .switch-card {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(255, 90, 121, 0.05) 100%);
+            border: 1.5px solid rgba(249, 115, 22, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            text-align: left;
+        }
+        
+        .switch-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .switch-icon {
+            color: var(--color-primary-light);
+            font-size: 1.4rem;
+            margin-top: 2px;
+        }
+        
+        .switch-card-text strong {
+            display: block;
+            font-size: 1.05rem;
+            color: var(--color-text);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .switch-card-text p {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            margin: 0;
+            line-height: 1.45;
+        }
+        
+        .switch-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .switch-btn:hover:not(:disabled) {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        
+        .switch-btn:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--glass-border);
+            color: var(--color-text-light);
+            cursor: not-allowed;
+        }
+        
+        .switch-message {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .switch-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .switch-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        /* General Utilities */
+        .hidden {
+            display: none !important;
+        }
+        
+        .btn-loader {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @keyframes slide-down {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 576px) {
+            .status-checker-card {
+                padding: 24px;
+                width: 95%;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-item.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="dark">
+    <!-- Global Unified Navigation -->
+    <nav class="global-nav">
+        <div class="global-nav-container">
+            <a href="index.html" class="global-nav-link"><i class="fa-solid fa-store"></i> Shop Home</a>
+            <a href="status.html" class="global-nav-link active"><i class="fa-solid fa-shield"></i> Check Status</a>
+            <a href="admin/index.html" class="global-nav-link"><i class="fa-solid fa-lock"></i> Admin Panel</a>
+        </div>
+    </nav>
+
+    <!-- Header with Social Links -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="assets/images/logo 2.png" alt="Fox Media" class="logo-image">
+                <span class="logo-text">Fox Media</span>
+            </div>
+            <div class="social-links">
+                <a href="index.html#free-canva-section" class="social-btn gift-btn" id="gift-nav-btn">
+                    <i class="fa-solid fa-gift gift-icon" aria-hidden="true" style="color: #FF5A79;"></i> Get Free Canva 🎁
+                </a>
+                <a href="#whatsapp" class="social-btn" id="whatsapp-btn"><i class="fa-brands fa-whatsapp social-icon" aria-hidden="true"></i> WhatsApp</a>
+                <button id="theme-toggle" class="social-btn" style="padding: 0; width: 38px; height: 38px; justify-content: center; border-radius: 50%;" title="Toggle Theme">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="status-container">
+        <!-- Ambient Background Glows -->
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+
+        <div class="status-header animate-on-scroll">
+            <h1 class="hero-title" style="font-size: 3rem; margin-bottom: 10px;">Check Status</h1>
+            <p class="hero-subtitle" style="font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Enter your email below to check the real-time activation status of your Fox Media software.</p>
+        </div>
+
+        <!-- Native Subscription Check Card -->
+        <div class="status-checker-card animate-on-scroll">
+            <!-- Logo Section -->
+            <div class="checker-logo-wrapper" style="text-align: center; margin-bottom: 32px;">
+                <img src="assets/images/logo 2.png" alt="Fox Media" class="logo-image" style="width: 50px; height: 50px; margin-bottom: 8px;">
+                <span class="logo-text" style="font-size: 1.8rem; font-weight: 800; display: block; background: linear-gradient(135deg, var(--color-text) 20%, var(--color-primary-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Fox Media</span>
+            </div>
+
+            <form id="status-check-form">
+                <div class="form-group">
+                    <label for="check-email" class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                        <input type="email" id="check-email" class="form-input" placeholder="Enter your registered email address" required>
+                    </div>
+                </div>
+                <button type="submit" id="check-submit-btn" class="btn check-btn">
+                    <span class="btn-text"><i class="fa-solid fa-magnifying-glass"></i> Check Status</span>
+                    <span class="btn-loader hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Checking...</span>
+                </button>
+            </form>
+
+            <!-- Error message container -->
+            <div id="check-error" class="check-error-container hidden">
+                <i class="fa-solid fa-circle-xmark error-icon"></i>
+                <div class="error-text-wrapper">
+                    <h3 id="error-title">No Subscription Found</h3>
+                    <p id="error-desc">Please verify the email address is correct or contact support.</p>
+                </div>
+            </div>
+
+            <!-- Success result container -->
+            <div id="check-result" class="check-result-container hidden" style="margin-top: 32px;">
+                <!-- Consolidated Organization Status Card -->
+                <div id="team-status-card" class="org-status-card hidden">
+                    <div class="org-card-header">
+                        <div class="org-icon-container">
+                            🏢
+                        </div>
+                        <div class="org-text-details">
+                            <span class="org-label">Organization</span>
+                            <div class="org-name-row">
+                                <h2 id="result-org" class="org-title">CloudMatrixSystems</h2>
+                                <span id="team-status-badge" class="status-badge"><span id="team-status-label">Normal</span></span>
+                            </div>
+                            <div id="result-team-changed-text" class="team-changed-text hidden">
+                                Team changed <span id="result-change-time" style="font-weight: 700;">1 day ago</span> from <span id="result-change-prev">RapidCore Technologies</span> to <span id="result-change-curr" style="font-weight: 700;">CloudMatrixSystems</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team change option if available - Shown ABOVE status message for user attention -->
+                    <div id="result-switch-container" class="switch-section inline-switch hidden">
+                        <div class="switch-notice-title">Need to change to an active organization?</div>
+                        <div class="switch-notice-desc">You can switch to an active server/team automatically. Please click the button below 👇</div>
+                        <button id="switch-org-btn" class="switch-btn-blue pulse-blue">
+                            <span class="btn-text"><i class="fa-solid fa-arrows-rotate"></i> Press here to change to an active team</span>
+                            <span class="btn-loader hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Switching...</span>
+                        </button>
+                        <div id="switch-status-message" class="switch-message hidden"></div>
+                    </div>
+
+                    <p id="team-status-message" class="org-status-desc">This team is operating normally.</p>
+                </div>
+
+                <!-- Active Plan Products list -->
+                <div style="text-align: left; margin-bottom: 28px; margin-top: 28px;">
+                    <span class="result-label" style="font-size: 0.85rem; letter-spacing: 0.08em; font-weight: 700; color: var(--color-text-light); text-transform: uppercase; margin-bottom: 12px; display: block;">Active Plan</span>
+                    <div id="result-products-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Products will go here as single styled cards -->
+                    </div>
+                </div>
+
+                <!-- Last Transfer Notice if any -->
+                <div id="result-transfer-container" class="transfer-section hidden" style="margin-top: 24px;">
+                    <h4 class="transfer-title"><i class="fa-solid fa-arrow-right-arrow-left"></i> Organization History</h4>
+                    <div class="transfer-path">
+                        <span id="result-transfer-old" class="transfer-old">Old Org</span>
+                        <i class="fa-solid fa-right-long transfer-arrow"></i>
+                        <span id="result-transfer-new" class="transfer-new">New Org</span>
+                    </div>
+                    <span id="result-transfer-date" class="transfer-date">Changed: 01/01/2026</span>
+                </div>
+
+                <!-- Important Notice Banner if any -->
+                <div id="result-notice-container" class="notice-section hidden" style="margin-top: 24px;">
+                    <i class="fa-solid fa-circle-exclamation notice-icon"></i>
+                    <p id="result-notice" class="notice-text">Important notice message here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Box -->
+        <div class="status-support-box animate-on-scroll tilt">
+            <h2 class="status-support-title">Status showing as <span>Inactive</span>?</h2>
+            <p class="status-support-desc">Don't worry! Sometimes activations take a few minutes, or there might be a minor issue. Contact us immediately and we will fix it instantly.</p>
+            <div class="support-actions">
+                <a href="tel:+919865488886" class="btn btn-call">
+                    <i class="fa-solid fa-phone"></i> Call Us Now
+                </a>
+                <a href="https://wa.me/919865488886?text=Hi%20Fox%20Media,%20my%20order%20status%20is%20showing%20as%20Inactive.%20Can%20you%20help%3F" target="_blank" class="btn btn-primary pulse-btn">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp Us
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Native Script for status checking and animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mock state tracker for test email organization switches
+            let hasSwitchedMock = false;
+
+            // Scroll animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+            // Status Checker API urls
+            const API_BASE = 'https://reseller.ado-besoft.com/api';
+            const PROXY_PREFIX = 'https://corsproxy.io/?url=';
+
+            const statusForm = document.getElementById('status-check-form');
+            const submitBtn = document.getElementById('check-submit-btn');
+            const checkEmail = document.getElementById('check-email');
+            
+            const errorDiv = document.getElementById('check-error');
+            const resultDiv = document.getElementById('check-result');
+            
+            const orgSpan = document.getElementById('result-org');
+            const teamChangedTextDiv = document.getElementById('result-team-changed-text');
+            const changeTimeSpan = document.getElementById('result-change-time');
+            const changePrevSpan = document.getElementById('result-change-prev');
+            const changeCurrSpan = document.getElementById('result-change-curr');
+            
+            const teamCardDiv = document.getElementById('team-status-card');
+            const teamLabelSpan = document.getElementById('team-status-label');
+            const teamBadgeSpan = document.getElementById('team-status-badge');
+            const teamMessageP = document.getElementById('team-status-message');
+            
+            const productsListDiv = document.getElementById('result-products-list');
+            
+            const transferContainer = document.getElementById('result-transfer-container');
+            const transferOld = document.getElementById('result-transfer-old');
+            const transferNew = document.getElementById('result-transfer-new');
+            const transferDate = document.getElementById('result-transfer-date');
+            
+            const switchContainer = document.getElementById('result-switch-container');
+            const switchBtn = document.getElementById('switch-org-btn');
+            const switchMessage = document.getElementById('switch-status-message');
+            
+            const noticeContainer = document.getElementById('result-notice-container');
+            const noticeText = document.getElementById('result-notice');
+            
+            // Theme Toggle Logic
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = themeToggleBtn.querySelector('i');
+            
+            // Load saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.className = 'fa-solid fa-sun';
+                    themeToggleBtn.style.color = '#ffc107'; // amber color for sun
+                } else {
+                    themeIcon.className = 'fa-solid fa-moon';
+                    themeToggleBtn.style.color = ''; // default theme text color
+                }
+            }
+
+            // Relative time helper
+            const L = function(e) {
+                let t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0;
+                if (!e) return "";
+                const n = new Date(e).getTime();
+                const a = Math.max(0, Math.floor((Date.now() + 0 * t - n) / 1e3));
+                if (a < 60) return `${a || 1} second${1 === a ? "" : "s"} ago`;
+                const s = Math.floor(a / 60);
+                if (s < 60) return `${s} minute${1 === s ? "" : "s"} ago`;
+                const r = Math.floor(s / 60);
+                if (r < 24) return `${r} hour${1 === r ? "" : "s"} ago`;
+                const i = Math.floor(r / 24);
+                return `${i} day${1 === i ? "" : "s"} ago`;
+            };
+
+            // Refactored status checker callback
+            async function performStatusCheck(email) {
+                if (!email) return;
+
+                // Reset and show loader
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.btn-text').classList.add('hidden');
+                submitBtn.querySelector('.btn-loader').classList.remove('hidden');
+                
+                errorDiv.classList.add('hidden');
+                resultDiv.classList.add('hidden');
+                teamCardDiv.classList.add('hidden');
+                switchContainer.classList.add('hidden');
+                noticeContainer.classList.add('hidden');
+                transferContainer.classList.add('hidden');
+
+                try {
+                    let data;
+                    let isOk = true;
+                    if (email.toLowerCase() === 'test@example.com' || email.toLowerCase() === 'mock@example.com') {
+                        // Simulate network lag
+                        await new Promise(r => setTimeout(r, 1000));
+                        if (hasSwitchedMock) {
+                            data = {
+                                found: true,
+                                status: 'active',
+                                organization: { name: 'CloudMatrixSystems' },
+                                products: ['Creative Cloud Pro Configuration'],
+                                teamChange: {
+                                    changedAt: new Date().toISOString(),
+                                    previousName: 'Afyvo-CloudForge',
+                                    currentName: 'CloudMatrixSystems'
+                                },
+                                organizationStatus: {
+                                    status: 'normal',
+                                    label: 'Normal',
+                                    message: 'This team is operating normally.'
+                                }
+                            };
+                        } else {
+                            data = {
+                                found: true,
+                                status: 'inactive',
+                                organization: { name: 'Afyvo-CloudForge' },
+                                products: ['Creative Cloud Pro Configuration'],
+                                teamChange: {
+                                    changedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+                                    previousName: 'SkyVista Systems',
+                                    currentName: 'Afyvo-CloudForge'
+                                },
+                                organizationStatus: {
+                                    status: 'inactive',
+                                    label: 'Inactive',
+                                    message: 'This team is currently inactive.'
+                                }
+                            };
+                        }
+                    } else {
+                        // Added cache-busting timestamp parameter to prevent loading stale user status after switch
+                        const statusUrl = PROXY_PREFIX + encodeURIComponent(`${API_BASE}/user-status?t=${Date.now()}`);
+                        const res = await fetch(statusUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email })
+                        });
+                        isOk = res.ok;
+                        data = await res.json();
+                    }
+
+                    if (isOk && data && data.found) {
+                        // Organization Name
+                        orgSpan.textContent = (data.organization && data.organization.name) ? data.organization.name : 'Unknown';
+
+                        // Team Changed History Header
+                        if (data.teamChange && data.teamChange.changedAt) {
+                            teamChangedTextDiv.classList.remove('hidden');
+                            changeTimeSpan.textContent = L(data.teamChange.changedAt);
+                            changePrevSpan.textContent = data.teamChange.previousName || '';
+                            changeCurrSpan.textContent = data.teamChange.currentName || (data.organization && data.organization.name) || '';
+                        } else {
+                            teamChangedTextDiv.classList.add('hidden');
+                        }
+
+                        // Team Status Card Info
+                        // Determine overall status class and text
+                        let isTeamActive = true;
+                        let displayStatus = 'ACTIVE';
+                        let displayClass = 'status-badge status-active';
+                        
+                        const status = data.organizationStatus ? (data.organizationStatus.status || 'normal') : (data.status || 'active');
+                        const message = data.organizationStatus ? (data.organizationStatus.message || '') : (status === 'active' ? 'This team is operating normally.' : 'This team is inactive.');
+                        
+                        if (status === 'normal' || status === 'active') {
+                            displayStatus = 'ACTIVE';
+                            displayClass = 'status-badge status-active';
+                            isTeamActive = true;
+                            teamCardDiv.style.borderColor = '#10b981';
+                            teamCardDiv.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.15), 0 15px 35px rgba(0, 0, 0, 0.3)';
+                        } else if (status === 'updating') {
+                            displayStatus = 'UPDATING';
+                            displayClass = 'status-badge status-warning';
+                            isTeamActive = true;
+                            teamCardDiv.style.borderColor = '#f59e0b';
+                            teamCardDiv.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.15), 0 15px 35px rgba(0, 0, 0, 0.3)';
+                        } else {
+                            displayStatus = 'INACTIVE';
+                            displayClass = 'status-badge status-expired';
+                            isTeamActive = false;
+                            teamCardDiv.style.borderColor = '#ef4444';
+                            teamCardDiv.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.15), 0 15px 35px rgba(0, 0, 0, 0.3)';
+                        }
+                        
+                        teamCardDiv.classList.remove('hidden');
+                        teamLabelSpan.textContent = displayStatus;
+                        teamBadgeSpan.className = displayClass;
+                        teamBadgeSpan.style.backgroundColor = '';
+                        teamMessageP.textContent = message;
+
+                        // Render Active Plan Products
+                        productsListDiv.innerHTML = '';
+                        if (data.products && data.products.length > 0) {
+                            data.products.forEach(p => {
+                                const card = document.createElement('div');
+                                card.className = 'product-item-card';
+                                card.style.display = 'flex';
+                                card.style.alignItems = 'center';
+                                card.style.gap = '14px';
+                                card.innerHTML = `
+                                    <i class="fa-solid fa-cube product-card-icon" style="color: var(--color-accent); font-size: 1.25rem;"></i>
+                                    <span class="product-card-name">${p}</span>
+                                `;
+                                productsListDiv.appendChild(card);
+                            });
+                        } else {
+                            productsListDiv.innerHTML = '<div class="product-item-card" style="font-weight: 500; color: var(--color-text-light); display: flex; align-items: center; gap: 14px;"><i class="fa-solid fa-circle-info" style="color: var(--color-text-light); font-size: 1.25rem;"></i> No active plans found</div>';
+                        }
+
+                        // Historical transfers if any
+                        if (data.lastTransfer) {
+                            transferContainer.classList.remove('hidden');
+                            transferOld.textContent = data.lastTransfer.oldOrganizationName || 'Old Org';
+                            transferNew.textContent = data.lastTransfer.newOrganizationName || (data.organization && data.organization.name) || 'New Org';
+                            transferDate.textContent = `Changed: ${new Date(data.lastTransfer.date).toLocaleDateString()}`;
+                        }
+
+                        // Notice text if any
+                        if (data.notice) {
+                            noticeContainer.classList.remove('hidden');
+                            noticeText.textContent = data.notice;
+                        }
+
+                        // Display the result container
+                        resultDiv.classList.remove('hidden');
+
+                        // Proactively check if auto-switch is available for this user
+                        checkSwitchOption(email);
+                    } else {
+                        // Display error
+                        document.getElementById('error-title').textContent = 'No Active Subscription';
+                        document.getElementById('error-desc').textContent = data.error || 'No active subscription was found for this email address. Please make sure the email is typed correctly or contact support.';
+                        errorDiv.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    document.getElementById('error-title').textContent = 'Connection Error';
+                    document.getElementById('error-desc').textContent = 'Could not establish connection to check your status. Please try again or check your internet connection.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.btn-text').classList.remove('hidden');
+                    submitBtn.querySelector('.btn-loader').classList.add('hidden');
+                }
+            }
+
+            statusForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                performStatusCheck(checkEmail.value.trim());
+            });
+
+            // Check if organization auto-switch option is available
+            async function checkSwitchOption(email) {
+                try {
+                    let data;
+                    if (email.toLowerCase() === 'test@example.com' || email.toLowerCase() === 'mock@example.com') {
+                        data = {
+                            available: true,
+                            cooldownActive: false
+                        };
+                    } else {
+                        const optionsUrl = PROXY_PREFIX + encodeURIComponent(`${API_BASE}/credits-pool/public/org-switch/options?t=${Date.now()}`);
+                        const res = await fetch(optionsUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email })
+                        });
+                        if (!res.ok) return;
+                        data = await res.json();
+                    }
+                    if (data) {
+                        if (data.available) {
+                            switchContainer.classList.remove('hidden');
+                            switchBtn.disabled = data.cooldownActive;
+                            
+                            if (data.cooldownActive) {
+                                switchBtn.querySelector('.btn-text').innerHTML = '<i class="fa-solid fa-clock"></i> Recently switched — please wait';
+                            } else {
+                                switchBtn.querySelector('.btn-text').innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Press here to change to an active team';
+                            }
+                            switchBtn.setAttribute('data-email', email);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Switch check error:', err);
+                }
+            }
+
+            // Handle organization switch execution
+            switchBtn.addEventListener('click', async () => {
+                const email = switchBtn.getAttribute('data-email');
+                if (!email) return;
+
+                switchBtn.disabled = true;
+                switchBtn.querySelector('.btn-text').classList.add('hidden');
+                switchBtn.querySelector('.btn-loader').classList.remove('hidden');
+                
+                switchMessage.className = 'switch-message hidden';
+
+                try {
+                    let data;
+                    let isOk = true;
+                    if (email.toLowerCase() === 'test@example.com' || email.toLowerCase() === 'mock@example.com') {
+                        await new Promise(r => setTimeout(r, 1500));
+                        hasSwitchedMock = true;
+                        data = {
+                            success: true,
+                            message: 'Successfully moved to a new active organization! Reloading your status...'
+                        };
+                    } else {
+                        const switchUrl = PROXY_PREFIX + encodeURIComponent(`${API_BASE}/credits-pool/public/org-switch`);
+                        const res = await fetch(switchUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email })
+                        });
+                        isOk = res.ok;
+                        data = await res.json();
+                    }
+
+                    if (isOk && data && data.success) {
+                        switchMessage.textContent = data.message || 'Successfully moved to a new active organization! Reloading your status...';
+                        switchMessage.className = 'switch-message success';
+                        switchMessage.classList.remove('hidden');
+
+                        // Immediately perform check after a short wait (to let database commit settle)
+                        setTimeout(() => {
+                            performStatusCheck(email);
+                        }, 2000);
+                    } else {
+                        switchMessage.textContent = data.error || 'Failed to switch organization. Please call support or try again.';
+                        switchMessage.className = 'switch-message error';
+                        switchMessage.classList.remove('hidden');
+                        switchBtn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error('Switch request error:', err);
+                    switchMessage.textContent = 'Connection error. Please try again.';
+                    switchMessage.className = 'switch-message error';
+                    switchMessage.classList.remove('hidden');
+                    switchBtn.disabled = false;
+                } finally {
+                    switchBtn.querySelector('.btn-text').classList.remove('hidden');
+                    switchBtn.querySelector('.btn-loader').classList.add('hidden');
+                }
+            });
+
+            // Automatically check if email is provided in the URL query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const emailParam = urlParams.get('email') || urlParams.get('emailParam');
+            if (emailParam && emailParam.trim().includes('@')) {
+                checkEmail.value = emailParam.trim();
+                performStatusCheck(emailParam.trim());
+            }
+        });
+    </script>
+</body>
+</html>
